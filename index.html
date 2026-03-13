@@ -1,0 +1,66 @@
+<!-- 首页（入口） -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>心语 · 无障碍心理健康平台</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 固定头部 -->
+  <header>
+    <div class="logo">心语</div>
+  </header>
+
+  <!-- 一键求助悬浮按钮 -->
+  <div class="help-btn" aria-label="一键求助" onclick="location.href='help.html'">
+    🆘
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="container">
+    <h1 class="page-title">欢迎来到心语</h1>
+    <p class="subtitle">一个为听障朋友设计的无声心理健康空间</p>
+
+    <!-- 功能卡片 -->
+    <div class="card feature-card" onclick="goTo('self-assessment.html')">
+      <h2>🫶 手语心理自评</h2>
+      <p>通过手语视频理解问题，用颜色和表情完成心理状态评估。</p>
+    </div>
+
+    <div class="card feature-card" onclick="goTo('mindfulness.html')">
+      <h2>🌀 无声正念呼吸</h2>
+      <p>跟随视觉呼吸球，调节情绪，无需任何声音。</p>
+    </div>
+
+    <div class="card feature-card" onclick="goTo('emotion-canvas.html')">
+      <h2>🎨 情绪画板</h2>
+      <p>用色彩和涂鸦表达心情，让情绪“看得见”。</p>
+    </div>
+
+    <div class="card feature-card emergency" onclick="goTo('help.html')">
+      <h2>🆘 一键求助</h2>
+      <p>立即连接心理咨询师，纯文字沟通，安全保密。</p>
+    </div>
+  </div>
+
+  <script>
+    // 卡片点击跳转
+    function goTo(page) {
+      window.location.href = page;
+    }
+
+    // 键盘可访问性：回车/空格触发卡片
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.tabIndex = 0; // 使 div 可聚焦
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

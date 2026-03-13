@@ -1,0 +1,225 @@
+<!-- 手语心理自评页 -->
+ <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>手语心理自评 · 心语</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .assessment-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      font-size: 1.8rem;
+      color: var(--text-dark);
+    }
+
+    .page-header p {
+      color: var(--text-light);
+      margin-top: 0.5rem;
+    }
+
+    /* 双栏布局 */
+    .question-section {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .question-panel {
+      flex: 1;
+    }
+
+    .sign-video-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sign-placeholder {
+      width: 100%;
+      height: 300px;
+      background: #edf2f7;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      text-align: center;
+      padding: 1rem;
+      border: 2px dashed #cbd5e0;
+    }
+
+    .sign-label {
+      margin-top: 0.8rem;
+      font-size: 0.95rem;
+      color: var(--text-light);
+    }
+
+    /* 问题样式 */
+    .question-text {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    /* 选项按钮 - 情绪化设计 */
+    .options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem;
+    }
+
+    .option-btn {
+      padding: 1.2rem 0.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-size: 1.4rem;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .option-btn.selected {
+      border-color: var(--accent-blue);
+      background-color: #ebf8ff;
+      font-weight: bold;
+    }
+
+    /* 颜色映射 */
+    .opt-happy { background-color: #e6fffa; }
+    .opt-ok { background-color: #fefcbf; }
+    .opt-worried { background-color: #fed7d7; }
+    .opt-distressed { background-color: #fee2e2; }
+
+    /* 提交按钮 */
+    .submit-section {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .submit-btn {
+      padding: 0.9rem 2.5rem;
+      background-color: var(--accent-blue);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover {
+      background-color: #3182ce;
+    }
+
+    /* 响应式：小屏堆叠 */
+    @media (max-width: 768px) {
+      .question-section {
+        flex-direction: column;
+      }
+      .options {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .option-btn {
+        padding: 1rem 0.3rem;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">心语</div>
+  </header>
+
+  <div class="help-btn" aria-label="一键求助" onclick="location.href='help.html'">🆘</div>
+
+  <div class="assessment-container">
+    <div class="page-header">
+      <h1>🫶 手语心理自评</h1>
+      <p>请观看右侧手语视频理解问题，然后选择最符合你感受的选项</p>
+    </div>
+
+    <!-- 示例：第一个问题 -->
+    <div class="question-section">
+      <div class="question-panel">
+        <div class="question-text">最近一周，我感到紧张或焦虑？</div>
+        <div class="options">
+          <div class="option-btn opt-happy" data-value="1" onclick="selectOption(this)">😊<br/>几乎没有</div>
+          <div class="option-btn opt-ok" data-value="2" onclick="selectOption(this)">😐<br/>有时</div>
+          <div class="option-btn opt-worried" data-value="3" onclick="selectOption(this)">😟<br/>经常</div>
+          <div class="option-btn opt-distressed" data-value="4" onclick="selectOption(this)">😰<br/>总是</div>
+        </div>
+      </div>
+
+      <div class="sign-video-panel">
+        <div class="sign-placeholder">
+          📹 手语视频<br/>
+          <small>（演示：最近一周，我感到紧张或焦虑？）</small>
+        </div>
+        <div class="sign-label">手语示范：问题 1</div>
+      </div>
+    </div>
+
+    <!-- 可添加更多问题（此处简化为1个示例） -->
+
+    <div class="submit-section">
+      <button class="submit-btn" onclick="submitAssessment()">完成并查看结果</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedOptions = {};
+
+    function selectOption(btn) {
+      // 同一题只选一个
+      const questionIndex = 0; // 简化：假设只有1题
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedOptions[questionIndex] = btn.getAttribute('data-value');
+    }
+
+    function submitAssessment() {
+      if (Object.keys(selectedOptions).length === 0) {
+        alert('请先选择你的感受');
+        return;
+      }
+
+      // 模拟跳转到结果页（或显示提示）
+      alert('✅ 自评完成！\n\n你的回答已记录。\n\n在真实系统中，将为你生成个性化心理健康建议。');
+      
+      // 可跳转到首页
+      window.location.href = 'index.html';
+    }
+
+    // 键盘支持（可选）
+    document.querySelectorAll('.option-btn').forEach((btn, index) => {
+      btn.tabIndex = 0;
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectOption(btn);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

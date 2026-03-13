@@ -1,0 +1,217 @@
+<!-- 视觉化情绪画板页 -->
+ <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>情绪画板 · 心语</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .canvas-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .guide {
+      text-align: center;
+      margin-bottom: 1.2rem;
+      color: var(--text-light);
+      font-size: 1.2rem;
+    }
+
+    #drawing-canvas {
+      width: 100%;
+      height: 60vh;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      cursor: crosshair;
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .color-palette {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .color-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e0;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .color-btn.active {
+      transform: scale(1.2);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px white, 0 0 0 4px var(--accent-blue);
+    }
+
+    .clear-btn {
+      padding: 0.6rem 1.2rem;
+      background-color: #e2e8f0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .clear-btn:hover {
+      background-color: #cbd5e0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">心语</div>
+  </header>
+
+  <div class="help-btn" aria-label="一键求助" onclick="location.href='help.html'">🆘</div>
+
+  <div class="canvas-container">
+    <h1 style="text-align:center; margin-bottom: 0.5rem;">🎨 情绪画板</h1>
+    <p class="guide">用颜色和线条表达你的心情</p>
+
+    <canvas id="drawing-canvas"></canvas>
+
+    <div class="controls">
+      <div class="color-palette" id="color-palette">
+        <!-- 颜色将由 JS 动态生成 -->
+      </div>
+      <button class="clear-btn" onclick="clearCanvas()">清除画布</button>
+    </div>
+  </div>
+
+  <script>
+    // 配置
+    const colors = [
+      '#e53e3e', // 红 - 愤怒/焦虑
+      '#dd6b20', // 橙 - 紧张
+      '#f6ad55', // 黄 - 不安
+      '#48bb78', // 绿 - 平静
+      '#4299e1', // 蓝 - 安宁
+      '#805ad5', // 紫 - 孤独
+      '#ed64a6', // 粉 - 温柔
+      '#000000'  // 黑 - 压抑
+    ];
+
+    let currentColor = colors[0];
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const canvas = document.getElementById('drawing-canvas');
+    const ctx = canvas.getContext('2d');
+    const colorPalette = document.getElementById('color-palette');
+
+    // 设置 canvas 实际分辨率（避免模糊）
+    function resizeCanvas() {
+      const displayWidth = canvas.clientWidth;
+      const displayHeight = canvas.clientHeight;
+      canvas.width = displayWidth * window.devicePixelRatio;
+      canvas.height = displayHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 4;
+    }
+
+    window.addEventListener('load', () => {
+      resizeCanvas();
+      initColorPalette();
+    });
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+    });
+
+    // 初始化颜色选择器
+    function initColorPalette() {
+      colorPalette.innerHTML = '';
+      colors.forEach(color => {
+        const btn = document.createElement('div');
+        btn.className = 'color-btn';
+        btn.style.backgroundColor = color;
+        btn.setAttribute('aria-label', `选择颜色 ${color}`);
+        btn.onclick = () => {
+          currentColor = color;
+          document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        };
+        if (color === currentColor) {
+          btn.classList.add('active');
+        }
+        colorPalette.appendChild(btn);
+      });
+    }
+
+    // 绘图事件
+    function startDrawing(e) {
+      isDrawing = true;
+      [lastX, lastY] = getCoordinates(e);
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const [x, y] = getCoordinates(e);
+      ctx.strokeStyle = currentColor;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      [lastX, lastY] = [x, y];
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    function getCoordinates(e) {
+      let x, y;
+      if (e.type.includes('touch')) {
+        const touch = e.touches[0] || e.changedTouches[0];
+        const rect = canvas.getBoundingClientRect();
+        x = touch.clientX - rect.left;
+        y = touch.clientY - rect.top;
+      } else {
+        const rect = canvas.getBoundingClientRect();
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+      }
+      return [x, y];
+    }
+
+    // 绑定事件（支持鼠标和触屏）
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startDrawing(e);
+    });
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      draw(e);
+    });
+    canvas.addEventListener('touchend', stopDrawing);
+
+    // 清除画布
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width / window.devicePixelRatio, canvas.height / window.devicePixelRatio);
+    }
+  </script>
+</body>
+</html>
